@@ -25,6 +25,8 @@ public class Attendance extends AppCompatActivity {
                 R.array.typeTask, android.R.layout.simple_list_item_activated_1);
         idTypeTask.setAdapter(adapterTypeTaskList);
 
+
+
         fechaCodigoTarea_et = findViewById(R.id.fechaCodigoTarea_et);
 
         Time fechaHoy = new Time(Time.getCurrentTimezone());

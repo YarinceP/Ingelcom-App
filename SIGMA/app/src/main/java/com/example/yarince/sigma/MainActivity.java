@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity  implements View.OnClickList
 
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent(this,Catering.class);
+        Intent intent = new Intent(this,MenuDesplegable2.class);
         startActivity(intent);
     }
 

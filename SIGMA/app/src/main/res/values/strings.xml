@@ -13,6 +13,7 @@
         <item>PM</item>
         <item>PLM</item>
     </string-array>
+
     <string name="idTask">ID TAREA</string>
     <string name="title_activity_login">Sign in</string>
     <!-- Strings related to login -->
@@ -45,5 +46,21 @@
 
     <!-- Abastecimiento -->
     <string name="user">Usuario</string>
+    <string name="title_activity_abastecimiento_otros">Abastecimiento Otros</string>
+    <string name="monto_abastecido">Monto abastecido</string>
+    <string name="precio_litros">Precio por litro</string>
+    <string name="factura">Factura</string>
+    <string name="kilometraje">Kilometraje</string>
+    <string name="tipo_maquinaria">Tipo Maquinaria</string>
+
+    <string-array name="maquinaria_tipo">
+        <item>Vehiculo tercero</item>
+        <item>Tambo provisional</item>
+        <item>Cortacesped</item>
+        <item>Planta</item>
+    </string-array>
+
+    <!-- HelperText Abastecimiento -->
+    <string name="adjunte_fotografia">Adjunte Fotografia</string>
 
 </resources>
