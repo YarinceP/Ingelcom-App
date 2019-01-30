@@ -129,7 +129,7 @@ public class Catering extends AppCompatActivity implements View.OnClickListener 
 
         if (resultCode == RESULT_OK) {//La peticion de la foto ha ido bien
 
-            if (imageButtonFotoKm.isClickable()) {
+            if (imageButtonFotoKm.isClickable()) {//p
 
                 magicalCamera.resultPhoto(requestCode, resultCode, data);
                 imageViewFotoKm.setImageBitmap(magicalCamera.getPhoto());
