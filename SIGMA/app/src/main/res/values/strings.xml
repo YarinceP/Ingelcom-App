@@ -52,12 +52,16 @@
     <string name="factura">Factura</string>
     <string name="kilometraje">Kilometraje</string>
     <string name="tipo_maquinaria">Tipo Maquinaria</string>
+    <string name="maquinaria">Maquinaria</string>
+
+    <string name="fotoFactura">Foto Factura</string>
+    <string name="fotoMaquinaria">Foto Maquinaria</string>
 
     <string-array name="maquinaria_tipo">
         <item>Vehiculo tercero</item>
         <item>Tambo provisional</item>
         <item>Cortacesped</item>
-        <item>Planta</item>
+        <item>MGP</item>
     </string-array>
 
     <!-- HelperText Abastecimiento -->
