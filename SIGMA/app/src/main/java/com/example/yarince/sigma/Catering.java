@@ -2,26 +2,40 @@ package com.example.yarince.sigma;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.frosquivel.magicalcamera.MagicalCamera;
 import com.frosquivel.magicalcamera.MagicalPermissions;
+
+import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Map;
 
-public class Catering extends AppCompatActivity implements View.OnClickListener {
+public class Catering extends AppCompatActivity implements View.OnClickListener, Response.Listener<JSONObject>, Response.ErrorListener {
 
     Button mBotonFecha;
     ImageButton imageButtonFotoKm;
@@ -36,12 +50,40 @@ public class Catering extends AppCompatActivity implements View.OnClickListener 
     private ImageView imageViewFotoBomba;
 
 
+    //Campos del formulario Nuevo Abastecimientos
+    EditText mIdVehiculoEditText, mPrecioEditText, mMontoAbastecidoEditText, mKilometrajeEditText, mTipoCombustibleEditText, mTipoMaquinariaEditText;
+    Button mGuardarButton;
+    ProgressDialog progreso;
+
+    //Nos permitiran la conexion directamente con nuestro Api (Web Services)
+    RequestQueue request;
+    JsonObjectRequest jsonObjectRequest;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.form_abastecimiento);
         //Mostra la flecha para volver atras
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //
+        mIdVehiculoEditText = (EditText) findViewById(R.id.id_vehiculo_et);
+        mKilometrajeEditText = (EditText) findViewById(R.id.kilometraje_et_catering_activity);
+        mMontoAbastecidoEditText = (EditText) findViewById(R.id.monto_abastecido_et_catering_activity);
+        mPrecioEditText = (EditText) findViewById(R.id.precio_litro_et_catering_activity);
+        mTipoCombustibleEditText = (EditText) findViewById(R.id.tipo_combustible_et_catering_activity);
+        mTipoMaquinariaEditText = (EditText) findViewById(R.id.tipo_maquinaria_et_catering_activity);
+        mGuardarButton = (Button) findViewById(R.id.btnGuardar);
+        request = Volley.newRequestQueue(this);
+        mGuardarButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cargarWebService();
+            }
+        });
+
+
+
 
         mBotonFecha = (Button) findViewById(R.id.btnFecha);
         mEditTextFecha = (EditText) findViewById(R.id.etFecha);
@@ -79,6 +121,28 @@ public class Catering extends AppCompatActivity implements View.OnClickListener 
 
     }
 
+//    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+//
+//        View vista=inflater.inflate(R.layout.form_abastecimiento,container,false);
+//        mIdVehiculoEditText=(EditText)vista.findViewById(R.id.id_vehiculo_et);
+//        mKilometrajeEditText=(EditText)vista.findViewById(R.id.kilometraje_et_catering_activity);
+//        mMontoAbastecidoEditText=(EditText)vista.findViewById(R.id.monto_abastecido_et_catering_activity);
+//        mPrecioEditText=(EditText)vista.findViewById(R.id.precio_litro_et_catering_activity);
+//        mTipoCombustibleEditText=(EditText)vista.findViewById(R.id.tipo_combustible_et_catering_activity);
+//        mTipoMaquinariaEditText=(EditText)vista.findViewById(R.id.tipo_maquinaria_et_catering_activity);
+//        mGuardarButton=(Button)vista.findViewById(R.id.btnGuardar);
+//
+//        request= Volley.newRequestQueue(this);
+//
+//        mGuardarButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                cargarWebService();
+//            }
+//        });
+//
+//        return vista;
+//    }
 
     @Override
     public void onClick(View v) {
@@ -161,4 +225,45 @@ public class Catering extends AppCompatActivity implements View.OnClickListener 
     }
 
 
+    @Override
+    public void onErrorResponse(VolleyError error) {
+        progreso.hide();
+        Toast.makeText(this, "No se guardaron los datos" + error.toString(), Toast.LENGTH_LONG);
+        Log.i("ERROR: ", error.toString());
+
+    }
+
+    @Override
+    public void onResponse(JSONObject response) {
+        Toast.makeText(this, "Se ha Registrado Correctamente", Toast.LENGTH_LONG).show();
+        progreso.hide();
+        mTipoMaquinariaEditText.setText("");
+        mTipoCombustibleEditText.setText("");
+        mKilometrajeEditText.setText("");
+        mMontoAbastecidoEditText.setText("");
+        mIdVehiculoEditText.setText("");
+        mPrecioEditText.setText("");
+
+    }
+
+    private void cargarWebService() {
+
+        progreso = new ProgressDialog(this);
+        progreso.setMessage("Enviando Datos....");
+        progreso.show();
+
+
+        String url = "http://192.168.0.5/Api/wsJSONlogin.php?" +
+                "id_vehiculo=" + mIdVehiculoEditText.getText().toString() +
+                "&kilometraje=" + mKilometrajeEditText.getText().toString() +
+                "&precio_combustible=" + mPrecioEditText.getText().toString() +
+                "&monto_abastecido=" + mMontoAbastecidoEditText.getText().toString() +
+                "&tipo_combustible=" + mTipoCombustibleEditText.getText().toString() +
+                "&tipo_maquinaria=" + mTipoMaquinariaEditText.getText().toString();
+
+        url = url.replace(" ", "%20");
+
+        jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, this, this);
+        request.add(jsonObjectRequest);
+    }
 }
