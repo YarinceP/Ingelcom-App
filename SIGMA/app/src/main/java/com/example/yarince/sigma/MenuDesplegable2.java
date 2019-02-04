@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -104,8 +105,14 @@ public class MenuDesplegable2 extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
+        Fragment mFragment=null;
+        boolean fragmentSeleccionado=false;
+
+        if (id == R.id.nav_accesos_directos) {
+            mFragment = new AccesosRapidosFragment();
+            fragmentSeleccionado=true;
+//            Intent intent = new Intent(this,MenuDesplegable2.class);
+//            startActivity(intent);
         } else if (id == R.id.nav_gallery) {
 
         } else if (id == R.id.nav_slideshow) {
@@ -118,6 +125,11 @@ public class MenuDesplegable2 extends AppCompatActivity
 
         } else if (id == R.id.nav_send) {
 
+        }
+
+
+        if(fragmentSeleccionado){
+            getSupportFragmentManager().beginTransaction().replace(R.id.content_menu,mFragment).commit();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
