@@ -33,9 +33,12 @@
                         </option>
                         <option name="values">
                           <map>
-                            <entry key="outputName" value="ic_apps_black_24dp" />
+                            <entry key="assetSourceType" value="FILE" />
+                            <entry key="height" value="2400" />
+                            <entry key="outputName" value="ic_ingelcom" />
                             <entry key="overrideSize" value="true" />
-                            <entry key="sourceFile" value="C:\Users\YARINCE\Desktop\esta.svg" />
+                            <entry key="sourceFile" value="C:\Users\YARINCE\Desktop\Ingelcom.svg" />
+                            <entry key="width" value="4000" />
                           </map>
                         </option>
                       </PersistentState>
