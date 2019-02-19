@@ -1,0 +1,285 @@
+package com.example.yarince.sigma;
+
+import android.Manifest;
+import android.app.DatePickerDialog;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
+import android.os.Bundle;
+import android.provider.Settings;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.w3c.dom.Text;
+
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+
+public class AsistenciaActivity extends AppCompatActivity {
+    //Lider
+    CheckBox liderCheckBox;
+    ImageButton liderImageButton;
+    ImageView liderImageView;
+    //Auxiliar 1
+    CheckBox aux1CheckBox;
+    ImageButton aux1ImageButton;
+    ImageView aux1ImageView;
+    //Auxiliar 2
+    CheckBox aux2CheckBox;
+    ImageButton aux2ImageButton;
+    ImageView aux2ImageView;
+    //Terceros
+    CheckBox tercerosCheckBox;
+    ImageButton tercerosImageButton;
+    ImageView tercerosImageView;
+    TextInputEditText tercerosCantidadTextInputEditText;
+    TextInputLayout tercerosCantidadTextInputLayout;
+
+    //Variables para capturar y obtener la fecha actual y poder modificar
+    EditText mEditTextFecha;
+    Button mBotonFecha;
+    private int dia, mes, ano;
+
+    //Variable de progreso
+    ProgressDialog progressDialog;
+
+    //Conexion
+    RequestQueue request;
+    StringRequest stringRequest;
+
+    //Ubicacion y Coordenadas
+    private LocationManager ubicacion;
+
+    //TextView
+    TextView latitud;
+    TextView longitud;
+
+
+    //PERMISOS
+    final int MY_PERMISSIONS_REQUEST_ACCES_FINE_LOCATION = 1;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_asistencia);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        //Inicializamos la variable request volley
+        request = Volley.newRequestQueue(this);
+
+
+
+//        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION,}, 1000);
+//        } else {
+//            locationStart();
+//        }
+
+        //Enlazamos la vista y sus elementos para la fecha
+        mBotonFecha = (Button) findViewById(R.id.btnFecha);
+        mEditTextFecha = (EditText) findViewById(R.id.etFecha);
+
+        //Seteamos el editText fecha con la fecha actual
+        fechaActual();
+
+        mBotonFecha.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                obtenerFecha();
+            }
+        });
+
+        //CheckBox
+        liderCheckBox = (CheckBox) findViewById(R.id.lider_checkbox_asistencia_activity);
+        aux1CheckBox = (CheckBox) findViewById(R.id.aux1_checkbox_asistencia_activity);
+        aux2CheckBox = (CheckBox) findViewById(R.id.aux2_checkbox_asistencia_activity);
+        tercerosCheckBox = (CheckBox) findViewById(R.id.terceros_checkbox_asistencia_activity);
+
+        //ImageButton
+        liderImageButton = (ImageButton) findViewById(R.id.lider_imgBtn_asistencia_activity);
+        aux1ImageButton = (ImageButton) findViewById(R.id.aux1_imgBtn_asistencia_activity);
+        aux2ImageButton = (ImageButton) findViewById(R.id.aux2_imgBtn_asistencia_activity);
+        tercerosImageButton = (ImageButton) findViewById(R.id.terceros_imgBtn_asistencia_activity);
+
+        //ImageView
+        liderImageView = (ImageView) findViewById(R.id.lider_imgVw_asistencia_activity);
+        aux1ImageView = (ImageView) findViewById(R.id.aux1_imgVw_asistencia_activity);
+        aux2ImageView = (ImageView) findViewById(R.id.aux2_imgVw_asistencia_activity);
+        tercerosImageView = (ImageView) findViewById(R.id.terceros_imgVw_asistencia_activity);
+
+        //TextInputEditText
+        tercerosCantidadTextInputEditText = (TextInputEditText) findViewById(R.id.terceros_et_asistencia_activity);
+
+        //TextInputLayout
+        tercerosCantidadTextInputLayout = (TextInputLayout) findViewById(R.id.terceros_txt_asistencia_activity);
+
+        //TextView para Localizacion
+        latitud = (TextView) findViewById(R.id.latitud);
+        longitud = (TextView) findViewById(R.id.longitud);
+
+        liderCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if ((liderCheckBox.isChecked())) {
+                    liderImageButton.setVisibility(View.VISIBLE);
+                    liderImageView.setVisibility(View.VISIBLE);
+
+                } else {
+                    liderImageButton.setVisibility(View.GONE);
+                    liderImageView.setVisibility(View.GONE);
+                }
+            }
+        });
+
+
+        aux1CheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if ((aux1CheckBox.isChecked())) {
+                    aux1ImageButton.setVisibility(View.VISIBLE);
+                    aux1ImageView.setVisibility(View.VISIBLE);
+                } else {
+                    aux1ImageButton.setVisibility(View.GONE);
+                    aux1ImageView.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        aux2CheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if ((aux2CheckBox.isChecked())) {
+                    aux2ImageButton.setVisibility(View.VISIBLE);
+                    aux2ImageView.setVisibility(View.VISIBLE);
+                } else {
+                    aux2ImageButton.setVisibility(View.GONE);
+                    aux2ImageView.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        tercerosCheckBox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if ((tercerosCheckBox.isChecked())) {
+                    tercerosImageButton.setVisibility(View.VISIBLE);
+                    tercerosImageView.setVisibility(View.VISIBLE);
+                    tercerosCantidadTextInputLayout.setVisibility(View.VISIBLE);
+                    tercerosCantidadTextInputEditText.setVisibility(View.VISIBLE);
+
+                } else {
+                    tercerosImageButton.setVisibility(View.GONE);
+                    tercerosImageView.setVisibility(View.GONE);
+                    tercerosCantidadTextInputLayout.setVisibility(View.GONE);
+                    tercerosCantidadTextInputEditText.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                cargarWebService();
+            }
+
+        });
+
+        determinarCoordenadas();
+
+        validarPermiso();
+
+
+        //------------------------
+
+
+        //--------------------------
+
+//        int permissionCheck = ContextCompat.checkSelfPermission(this,
+//                Manifest.permission.ACCESS_FINE_LOCATION);
+//
+//        if(permissionCheck==PackageManager.PERMISSION_DENIED) {
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                    Manifest.permission.ACCESS_FINE_LOCATION)) {
+//            }else{
+//                ActivityCompat.requestPermissions(this,
+//                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},1);
+//            }
+//        }
+
+    }
+
+    private void determinarCoordenadas() {
+        //Adquirimos una referencia para el sistema administrador de ubicaciones
+        LocationManager locationManager = (LocationManager) AsistenciaActivity.this.getSystemService(Context.LOCATION_SERVICE);
+
+        //Definimos el listener que responde a la actualizacion de la ubicaion
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+
+                latitud.setText(" Latitud:  " + location.getLatitude());
+                longitud.setText(" Longitud:  " + location.getLongitude());
+
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+
+        int permissionCheck = ContextCompat.checkSelfPermission(AsistenciaActivity.this,
+              
